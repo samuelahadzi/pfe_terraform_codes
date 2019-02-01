@@ -1,0 +1,104 @@
+---
+- hosts: client1
+  vars:
+    username: azureuser
+    password: Itsatest1
+  tasks:
+    - name: update list of deposists
+      apt:
+        update_cache: yes
+      become: true
+
+    - name: install curl, ca-certificates, git
+      apt:
+        name: ['curl','ca-certificates','git']
+        state: latest
+      become: true
+
+    - name: Install docker
+      apt:
+        name: docker.io
+        state: latest
+      become: true
+
+    - name: add kubernetes apt-key
+      apt_key:
+        url: 'https://packages.cloud.google.com/apt/doc/apt-key.gpg'
+        state: present
+      become: true
+
+    - name: add kubernetes repository
+      apt_repository:
+        repo: 'deb http://apt.kubernetes.io/ kubernetes-xenial main'
+        state: present
+      become: true
+
+    - name: install kubeadm
+      apt:
+        name: kubeadm
+        state: latest
+      become: true
+
+    - name: install python-software-properties
+      apt:
+        name: python-software-properties
+        state: latest
+      become: true
+
+    - name: add ansible repository
+      apt_repository:
+        repo: 'ppa:ansible/ansible'
+      become: true
+
+    - name: update list of deposists
+      apt:
+        update_cache: yes
+      become: true
+
+    - name: install ansible
+      apt:
+        name: ansible
+        state: latest
+      become: true
+
+    - name: install openjdk-8
+      apt:
+        name: openjdk-8-jdk
+        state: latest
+      become: true
+
+    - name: add jenkins apt-key
+      apt_key:
+        url: 'https://pkg.jenkins.io/debian/jenkins.io.key'
+        state: present
+      become: true
+
+    - name: add jenkins binary's path to /etc/apt/sources.list.d/jenkins.list
+    #   shell: echo 'deb http://pkg.jenkins.io/debian-stable binary/' > /etc/apt/sources.list.d/jenkins.list
+    #   #state: present
+    #   args:
+    #     executable: /bin/bash
+    #   become: true
+      lineinfile:
+        path: /etc/apt/sources.list.d/jenkins.list
+        state: present
+        regexp: '^pkg\.jenkins\.io'
+        line: 'deb http://pkg.jenkins.io/debian-stable binary/'
+      become: true
+
+    - name: update list of deposists
+      apt:
+        update_cache: yes
+      become: true
+
+    - name: install jenkins
+      apt:
+        name: jenkins
+        state: latest
+      become: true
+
+    - name: allow traffic through port 8080
+      ufw:
+        rule: allow
+        port: 8080
+      become: true
