@@ -43,7 +43,7 @@ resource "azurerm_public_ip" "myterraformpublicip1" {
     name                         = "myPublicIP1"
     location                     = "westeurope"
     resource_group_name          = "${azurerm_resource_group.myterraformgroup.name}"
-    public_ip_address_allocation = "dynamic"
+    allocation_method = "Dynamic"
 
     tags {
         environment = "Terraform Demo"
@@ -51,11 +51,11 @@ resource "azurerm_public_ip" "myterraformpublicip1" {
 }
 
 # Create public IPs
-resource "azurerm_public_ip" "myterraformpublicip2" {
-    name                         = "myPublicIP2"
+resource "azurerm_public_ip" "myterraformpublicipforlb" {
+    name                         = "myPublicIPForLB"
     location                     = "westeurope"
     resource_group_name          = "${azurerm_resource_group.myterraformgroup.name}"
-    public_ip_address_allocation = "dynamic"
+    allocation_method = "Static"
 
     tags {
         environment = "Terraform Demo"
@@ -76,6 +76,42 @@ resource "azurerm_network_security_group" "myterraformnsg" {
         protocol                   = "Tcp"
         source_port_range          = "*"
         destination_port_range     = "22"
+        source_address_prefix      = "*"
+        destination_address_prefix = "*"
+    }
+
+    security_rule {
+        name                       = "HTTP80"
+        priority                   = 1002
+        direction                  = "Inbound"
+        access                     = "Allow"
+        protocol                   = "Tcp"
+        source_port_range          = "*"
+        destination_port_range     = "80"
+        source_address_prefix      = "*"
+        destination_address_prefix = "*"
+    }
+
+    security_rule {
+        name                       = "HTTP8080"
+        priority                   = 1003
+        direction                  = "Inbound"
+        access                     = "Allow"
+        protocol                   = "Tcp"
+        source_port_range          = "*"
+        destination_port_range     = "8080"
+        source_address_prefix      = "*"
+        destination_address_prefix = "*"
+    }
+
+    security_rule {
+        name                       = "HTTPS"
+        priority                   = 1004
+        direction                  = "Inbound"
+        access                     = "Allow"
+        protocol                   = "Tcp"
+        source_port_range          = "*"
+        destination_port_range     = "443"
         source_address_prefix      = "*"
         destination_address_prefix = "*"
     }
@@ -135,7 +171,7 @@ resource "azurerm_lb" "myterraformlb" {
 
     frontend_ip_configuration {
         name                 = "PublicIPAddress"
-        public_ip_address_id = "${azurerm_public_ip.myterraformpublicip2.id}"
+        public_ip_address_id = "${azurerm_public_ip.myterraformpublicipforlb.id}"
     }
 
     tags {
